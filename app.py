@@ -1,11 +1,11 @@
 import streamlit as st
-from st_pages import show_pages_from_config
+#from st_pages import show_pages_from_config
 
 st.set_page_config(
     page_title="포켓몬 도감",
     page_icon="./images/monsterball.png"
 )
-show_pages_from_config()
+#show_pages_from_config()
 st.markdown("""
 <style>
 img { 

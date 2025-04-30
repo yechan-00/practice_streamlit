@@ -1,10 +1,33 @@
 import streamlit as st
+from st_pages import show_pages_from_config
 
-print("page reloaded")
 st.set_page_config(
     page_title="포켓몬 도감",
     page_icon="./images/monsterball.png"
 )
+show_pages_from_config()
+st.markdown("""
+<style>
+img { 
+    max-height: 300px;
+}
+.streamlit-expanderContent div {
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+}
+[data-testid="stExpanderToggleIcon"] {
+    visibility: hidden;
+}
+.streamlit-expanderHeader {
+    pointer-events: none;
+}
+[data-testid="StyledFullScreenButton"] {
+    visibility: hidden;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 st.title("streamlit 포켓몬 도감")
 st.markdown("**포켓몬**을 하나씩 추가해서 도감을 채워보세요!")
@@ -72,22 +95,31 @@ example_pokemon = {
 if "pokemons" not in st.session_state:
     st.session_state.pokemons = initial_pokemons
 
-
 auto_complete = st.toggle("예시 데이터로 채우기")
-print("page_reload, auto_complete", auto_complete)
 with st.form(key="form"):
     col1, col2 = st.columns(2)
     with col1:
-        name = st.text_input(label="포켓몬 이름", value=example_pokemon["name"] if auto_complete else "")
+        name = st.text_input(
+            label="포켓몬 이름",
+            value=example_pokemon["name"] if auto_complete else ""
+        )
     with col2:
-        types = st.multiselect(label="포켓몬 속성", options=list(type_emoji_dict.keys()), max_selections=2, default=example_pokemon["types"] if auto_complete else [])
-    image_url = st.text_input(label="포켓몬 이미지 URL", value=example_pokemon["image_url"] if auto_complete else "")
-    submit = st.form_submit_button(label="submit")
+        types = st.multiselect(
+            label="포켓몬 속성",
+            options=list(type_emoji_dict.keys()),
+            max_selections=2,
+            default=example_pokemon["types"] if auto_complete else []
+        )
+    image_url = st.text_input(
+        label="포켓몬 이미지 URL",
+        value=example_pokemon["image_url"] if auto_complete else ""
+    )
+    submit = st.form_submit_button(label="Submit")
     if submit:
         if not name:
             st.error("포켓몬의 이름을 입력해주세요.")
         elif len(types) == 0:
-            st.error("포켓몬의 속성을 적어도 한 개 선택해주세요.")
+            st.error("포켓몬의 속성을 적어도 한개 선택해주세요.")
         else:
             st.success("포켓몬을 추가할 수 있습니다.")
             st.session_state.pokemons.append({
@@ -95,8 +127,6 @@ with st.form(key="form"):
                 "types": types,
                 "image_url": image_url if image_url else "./images/default.png"
             })
-
-delete_index = None
 
 for i in range(0, len(st.session_state.pokemons), 3):
     row_pokemons = st.session_state.pokemons[i:i+3]
@@ -107,10 +137,9 @@ for i in range(0, len(st.session_state.pokemons), 3):
             with st.expander(label=f"**{i+j+1}. {pokemon['name']}**", expanded=True):
                 st.image(pokemon["image_url"])
                 emoji_types = [f"{type_emoji_dict[x]} {x}" for x in pokemon["types"]]
-                st.subheader(" / ".join(emoji_types))
-                if st.button(label="삭제", key=f"delete_{i+j}", use_container_width=True):
-                    delete_index = i + j
+                st.text(" / ".join(emoji_types))
+                delete_button = st.button(label="삭제", key=i+j, use_container_width=True)
+                if delete_button:
+                    del st.session_state.pokemons[i+j]
+                    st.rerun()
 
-if delete_index is not None:
-    del st.session_state.pokemons[delete_index]
-    st.experimental_rerun()

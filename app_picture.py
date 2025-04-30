@@ -89,7 +89,7 @@ for i in range(0, len(st.session_state.photos), 4):
         with cols[j]:
             photo = row_photos[j]
             with st.expander(f"📷 {photo['name']} ({photo['year']})", expanded=True):
-                st.image(photo["image_url"], use_column_width=True)
+                st.image(photo["image_url"], use_container_width=True)
                 st.caption(" / ".join(photo["types"]))
                 if st.button("삭제", key=f"delete_{i+j}", use_container_width=True):
                     delete_index = i + j
